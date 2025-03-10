@@ -29,7 +29,7 @@ int main() {
 
     int lock_fd = open(LOCK_FILE,  O_CREAT | O_RDWR, 0644);
     if (lock_fd < 0 || flock(lock_fd, LOCK_EX | LOCK_NB) < 0) {
-        std::cerr << "Error: Daemon already running or lock failed" << std::endl;
+        std::cerr << "Can't open :/var/lock/matt_daemon.lock" << std::endl;
         return 1;
     }
 

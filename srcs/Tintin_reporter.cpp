@@ -18,6 +18,6 @@ void Tintin_reporter::log(const std::string& message, const std::string& severit
     struct tm tm;
     char timestamp[80];
     localtime_r(&now, &tm);
-    strftime(timestamp, sizeof(timestamp), "[%d/%m/%Y - %H:%M:%S]", &tm);
-    _log_file << timestamp << " [ " << severity << " ] " << message << std::endl;
+    strftime(timestamp, sizeof(timestamp), "[%d/%m/%Y-%H:%M:%S]", &tm);
+    _log_file << timestamp << " [ " << severity << " ] — " << message << std::endl;
 }
