@@ -15,4 +15,8 @@
 #include <fcntl.h>
 #include <cerrno>
 #include <dirent.h>
-#include "Tintin_reporter.hpp"
+
+#define PORT 4242
+#define LOCK_FILE "/var/lock/matt_daemon.lock"
+#define LOG_DIR "/var/log/matt_daemon/"
+#define LOG_FILE "matt_daemon.log"

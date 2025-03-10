@@ -9,15 +9,15 @@ class Tintin_reporter {
 public:
     // Constructor with log file path
     explicit Tintin_reporter(const std::string& log_path);
-    
-    // Destructor
-    ~Tintin_reporter();
 
     // Coplien Form: Delete copy constructor and assignment operator
     Tintin_reporter(const Tintin_reporter&) = delete;
     Tintin_reporter& operator=(const Tintin_reporter&) = delete;
 
-    // Log a message with severity (e.g., "INFO", "ERROR")
+    // Destructor
+    ~Tintin_reporter();
+    
+    // Maybe remove severity
     void log(const std::string& message, const std::string& severity);
 
 private:

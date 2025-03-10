@@ -1,4 +1,5 @@
 #include "../includes/Matt_daemon.hpp"
+#include "../includes/Tintin_reporter.hpp"
 
 volatile sig_atomic_t shutdown_flag = 0;
 
@@ -26,14 +27,14 @@ int main() {
         return 1;
     }
 
-    int lock_fd = open("/var/lock/matt_daemon.lock", O_CREAT | O_RDWR, 0644);
+    int lock_fd = open(LOCK_FILE,  O_CREAT | O_RDWR, 0644);
     if (lock_fd < 0 || flock(lock_fd, LOCK_EX | LOCK_NB) < 0) {
         std::cerr << "Error: Daemon already running or lock failed" << std::endl;
         return 1;
     }
 
     struct stat st;
-    if (stat("/var/log/matt_daemon", &st) != 0 && mkdir("/var/log/matt_daemon", 0755) != 0) {
+    if (stat(LOG_DIR, &st) != 0 && mkdir(LOG_DIR, 0755) != 0) {
         std::cerr << "Error creating log directory" << std::endl;
         close(lock_fd);
         return 1;
@@ -43,7 +44,7 @@ int main() {
 
     Tintin_reporter *reporter = nullptr;
     try {
-        reporter = new Tintin_reporter("/var/log/matt_daemon/matt_daemon.log");
+        reporter = new Tintin_reporter(LOG_DIR LOG_FILE);
     } catch (const std::exception & e) {
         std::cerr << "Error: " << e.what() << std::endl;
         close(lock_fd);
@@ -68,7 +69,7 @@ int main() {
 
     int opt = 1;
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-    struct sockaddr_in address = {AF_INET, htons(4242), INADDR_ANY};
+    struct sockaddr_in address = {AF_INET, htons(PORT), INADDR_ANY};
     if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0) {
         reporter->log("Bind failed", "ERROR");
         close(server_fd);
@@ -78,7 +79,7 @@ int main() {
     }
 
     listen(server_fd, 3);
-    reporter->log("Daemon started and listening on port 4242", "INFO");
+    reporter->log("Daemon started and listening on port " + std::to_string(PORT), "INFO");
 
     std::vector<int> clients;
     fd_set read_fds;
@@ -135,6 +136,6 @@ int main() {
     for (int client : clients) close(client);
     delete reporter;
     close(lock_fd);
-    remove("/var/lock/matt_daemon.lock");
+    remove(LOCK_FILE);
     return 0;
 }
