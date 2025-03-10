@@ -1,43 +1,4 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <csignal>
-#include <ctime>
-#include <cstring>
-#include <sys/stat.h>
-#include <sys/file.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <fcntl.h>
-#include <cerrno>
-#include <dirent.h>
-
-class Tintin_reporter {
-private:
-    std::ofstream log_file;
-public:
-    Tintin_reporter(const std::string &path) {
-        log_file.open(path.c_str(), std::ios::app);
-        if (!log_file.is_open()) {
-            throw std::runtime_error("Could not open log file");
-        }
-    }
-
-    ~Tintin_reporter() {
-        log_file.close();
-    }
-
-    void log(const std::string &message, const std::string &severity) {
-        time_t now = time(0);
-        struct tm tm;
-        char timestamp[80];
-        localtime_r(&now, &tm);
-        strftime(timestamp, 80, "[%d/%m/%Y - %H:%M:%S]", &tm);
-        log_file << timestamp << " [ " << severity << " ] " << message << std::endl;
-    }
-};
+#include "../includes/Matt_daemon.hpp"
 
 volatile sig_atomic_t shutdown_flag = 0;
 
@@ -80,10 +41,11 @@ int main() {
 
     daemonize();
 
-    Tintin_reporter *reporter;
+    Tintin_reporter *reporter = nullptr;
     try {
         reporter = new Tintin_reporter("/var/log/matt_daemon/matt_daemon.log");
-    } catch (const std::exception &e) {
+    } catch (const std::exception & e) {
+        std::cerr << "Error: " << e.what() << std::endl;
         close(lock_fd);
         return 1;
     }
