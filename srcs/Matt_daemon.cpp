@@ -94,9 +94,19 @@ int main() {
             if (client > max_fd) max_fd = client;
         }
 
-        if (select(max_fd + 1, &read_fds, NULL, NULL, NULL) < 0 && errno != EINTR) {
-            reporter->log("Select error", "ERROR");
-            break;
+        int select_result = select(max_fd + 1, &read_fds, NULL, NULL, NULL);
+        if (select_result < 0) {
+            if (errno == EINTR) {
+                // Signal interrupted select: check shutdown_flag immediately
+                if (shutdown_flag) {
+                    break; // Exit loop if flag is set
+                } else {
+                    continue; // Re-check loop condition
+                }
+            } else {
+                reporter->log("Select error", "ERROR");
+                break;
+            }
         }
 
         if (FD_ISSET(server_fd, &read_fds) && clients.size() < 3) {
