@@ -109,11 +109,17 @@ int main() {
             }
         }
 
-        if (FD_ISSET(server_fd, &read_fds) && clients.size() < 3) {
+        if (FD_ISSET(server_fd, &read_fds)) {
             int client = accept(server_fd, NULL, NULL);
             if (client >= 0) {
-                clients.push_back(client);
-                reporter->log("New client connected", "INFO");
+                if (clients.size() >= 3) {
+                    close(client);
+                    reporter->log("Connection rejected: Maximum clients (3) reached", "INFO");
+                }
+                else {
+                    clients.push_back(client);
+                    reporter->log("New client connected", "INFO");
+                }
             }
         }
 
