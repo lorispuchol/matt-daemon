@@ -1,11 +1,10 @@
 # matt-daemon
 
 ## TODO
-- Logs like subject (This means that we should create gloabl variable for logger)
+- Emmit logs like subject (This means that we should create global variable for logger)
 
-
-#### Test:
-- Delete the log file while the daemon is running: Current behavor: it log nowhere (Maybe it should log recreate log file ?).
+### Test:
+- Delete the log file while the daemon is running: Current behavor: it log nowhere (Maybe it should recreate log file ?).
 
 ## Client usage
 
