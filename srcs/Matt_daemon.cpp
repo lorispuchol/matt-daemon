@@ -4,6 +4,7 @@
 volatile sig_atomic_t shutdown_flag = 0;
 
 void signal_handler(int sig) {
+    (void)sig;
     shutdown_flag = 1;
 }
 
@@ -29,7 +30,7 @@ int main() {
 
     int lock_fd = open(LOCK_FILE,  O_CREAT | O_RDWR, 0644);
     if (lock_fd < 0 || flock(lock_fd, LOCK_EX | LOCK_NB) < 0) {
-        std::cerr << "Can't open :/var/lock/matt_daemon.lock" << std::endl;
+        std::cerr << "Can't open :" << LOCK_FILE << std::endl;
         return 1;
     }
 
@@ -69,7 +70,7 @@ int main() {
 
     int opt = 1;
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-    struct sockaddr_in address = {AF_INET, htons(PORT), INADDR_ANY};
+    struct sockaddr_in address = {AF_INET, htons(PORT), INADDR_ANY, {0}};
     if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0) {
         reporter->log("Bind failed", "ERROR");
         close(server_fd);
@@ -78,7 +79,7 @@ int main() {
         return 1;
     }
 
-    listen(server_fd, 3);
+    listen(server_fd, MAX_CLIENTS);
     reporter->log("Daemon started and listening on port " + std::to_string(PORT), "INFO");
 
     std::vector<int> clients;
@@ -112,9 +113,9 @@ int main() {
         if (FD_ISSET(server_fd, &read_fds)) {
             int client = accept(server_fd, NULL, NULL);
             if (client >= 0) {
-                if (clients.size() >= 3) {
+                if (clients.size() >= MAX_CLIENTS) {
                     close(client);
-                    reporter->log("Connection rejected: Maximum clients (3) reached", "INFO");
+                    reporter->log("Connection rejected: Maximum clients (" + std::to_string(MAX_CLIENTS) + ") reached", "INFO");
                 }
                 else {
                     clients.push_back(client);
@@ -150,6 +151,9 @@ int main() {
     reporter->log("Daemon shutting down", "INFO");
     close(server_fd);
     for (int client : clients) close(client);
+    if (flock(lock_fd, LOCK_UN) == -1) {
+        reporter->log("Failed to unlock file\n", "ERROR");
+    }
     delete reporter;
     close(lock_fd);
     remove(LOCK_FILE);

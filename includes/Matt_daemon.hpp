@@ -18,5 +18,6 @@
 
 #define PORT 4242
 #define LOCK_FILE "/var/lock/matt_daemon.lock"
+#define MAX_CLIENTS 3
 #define LOG_DIR "/var/log/matt_daemon/"
 #define LOG_FILE "matt_daemon.log"
