@@ -4,7 +4,6 @@
 volatile sig_atomic_t shutdown_flag = 0;
 
 void signal_handler(int sig) {
-    (void)sig;
     shutdown_flag = 1;
 }
 
