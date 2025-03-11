@@ -1,7 +1,7 @@
 # matt-daemon
 
 ## TODO
-- Emmit logs like subject (This means that we should create global variable for logger)
+- Emmit logs like subject (This means that we should create logger at first)
 
 ### Test:
 - Delete the log file while the daemon is running: Current behavor: it log nowhere (Maybe it should recreate log file ?).

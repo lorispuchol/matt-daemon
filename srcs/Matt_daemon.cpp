@@ -2,9 +2,12 @@
 #include "../includes/Tintin_reporter.hpp"
 
 volatile sig_atomic_t shutdown_flag = 0;
+Tintin_reporter *reporter = nullptr; 
 
 void signal_handler(int sig) {
-    (void)sig;
+    if (reporter) {
+        reporter->log("Signal " + std::to_string(sig) + " received", "WARN");
+    }
     shutdown_flag = 1;
 }
 
@@ -43,7 +46,6 @@ int main() {
 
     daemonize();
 
-    Tintin_reporter *reporter = nullptr;
     try {
         reporter = new Tintin_reporter(LOG_DIR LOG_FILE);
     } catch (const std::exception & e) {
@@ -56,9 +58,48 @@ int main() {
     sa.sa_handler = signal_handler;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
+    // List of signals from kill -l
+    // Actions: Term, Core, Stop, Ign, Cont
+    // Only Term and Core are handled
+    sigaction(SIGHUP, &sa, NULL);
     sigaction(SIGINT, &sa, NULL);
-    sigaction(SIGTERM, &sa, NULL);
     sigaction(SIGQUIT, &sa, NULL);
+    sigaction(SIGILL, &sa, NULL);
+    sigaction(SIGTRAP, &sa, NULL);
+    // sigaction(SIGIO, &sa, NULL);
+    // sigaction(SIGABRT, &sa, NULL);
+    sigaction(SIGIOT, &sa, NULL); //IOT trap. A synonym for SIGABRT
+    sigaction(SIGBUS, &sa, NULL);
+    sigaction(SIGFPE, &sa, NULL);
+    // sigaction(SIGKILL, &sa, NULL); impossible
+    sigaction(SIGUSR1, &sa, NULL);
+    sigaction(SIGSEGV, &sa, NULL);
+    sigaction(SIGUSR2, &sa, NULL);
+    sigaction(SIGPIPE, &sa, NULL);
+    sigaction(SIGALRM, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
+    sigaction(SIGSTKFLT, &sa, NULL); 
+    // sigaction(SIGCHLD, &sa, NULL); IGNORED
+    // sigaction(SIGCLD, &sa, NULL); // A synonym for SIGCHLD
+    // sigaction(SIGCONT, &sa, NULL); // CONT
+    // sigaction(SIGSTOP, &sa, NULL); // STOP
+    // sigaction(SIGTSTP, &sa, NULL); // STOP
+    // sigaction(SIGTTIN, &sa, NULL); // STOP
+    // sigaction(SIGTTOU, &sa, NULL); // STOP 
+    // sigaction(SIGURG, &sa, NULL); // IGNORED
+    sigaction(SIGXCPU, &sa, NULL);
+    sigaction(SIGXFSZ, &sa, NULL);
+    sigaction(SIGVTALRM, &sa, NULL);
+    sigaction(SIGPROF, &sa, NULL);
+    // sigaction(SIGWINCH, &sa, NULL); // IGNORED
+    sigaction(SIGPOLL, &sa, NULL);
+    sigaction(SIGPWR, &sa, NULL);
+    // sigaction(SIGINFO, &sa, NULL); // A synonym for SIGPWR
+    sigaction(SIGSYS, &sa, NULL);
+    // sigaction(SIGUNUSED, &sa, NULL); // Synonymous with SIGSYS
+    // sigaction(SIGLOST, &sa, NULL);  // File lock lost (unused)
+    // sigaction(SIGEMT, &sa, NULL);
+
 
     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0) {
