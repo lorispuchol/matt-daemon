@@ -10,7 +10,7 @@ INCLUDES    =   Matt_daemon.hpp \
 
 SRCS_DIR    =   srcs/
 
-SRCS        =   Matt_daemon.cpp \
+SRCS        =   main.cpp \
                 Tintin_reporter.cpp
 
 OBJS        :=  ${addprefix objs/, ${SRCS:.cpp=.o}}
