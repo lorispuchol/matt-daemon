@@ -47,7 +47,7 @@ int main() {
     daemonize();
 
     try {
-        reporter = new Tintin_reporter(LOG_DIR LOG_FILE);
+        reporter = new Tintin_reporter(LOG_DIR, LOG_FILE);
     } catch (const std::exception & e) {
         std::cerr << "Error: " << e.what() << std::endl;
         close(lock_fd);
