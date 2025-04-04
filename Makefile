@@ -1,6 +1,6 @@
 CC          =   c++
 CFLAGS      =   -Wall -Werror -Wextra # -std=c++11
-NAME        =   Matt_daemon
+NAME        =   MattDaemon
 RM          =   rm -rf
 
 INCLDS_DIR  =   includes/
