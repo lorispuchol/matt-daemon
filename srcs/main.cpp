@@ -174,6 +174,7 @@ int main() {
                     buffer[len] = '\0';
                     std::string msg(buffer);
                     if (msg.find("quit") != std::string::npos) {
+                        reporter->log("Quit request", "INFO");
                         shutdown_flag = 1;
                         break;
                     }
